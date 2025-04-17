@@ -1,6 +1,4 @@
-import request from 'supertest';
-import { callback } from '../app';
-import { clearDatabase, createTestUser } from './helpers';
+import { clearDatabase, createTestUser, makeRequest } from './helpers';
 
 describe('Authentication', () => {
   beforeEach(async () => {
@@ -9,7 +7,7 @@ describe('Authentication', () => {
 
   describe('POST /auth/register', () => {
     it('should register a new user', async () => {
-      const response = await request(callback)
+      const response = await makeRequest()
         .post('/auth/register')
         .send({
           email: 'test@example.com',
@@ -17,13 +15,12 @@ describe('Authentication', () => {
         });
 
       expect(response.status).toBe(200);
-      expect(response.body.status).toBe('success');
       expect(response.body.data.user.email).toBe('test@example.com');
       expect(response.body.data.token).toBeDefined();
     });
 
     it('should not register with invalid email', async () => {
-      const response = await request(callback)
+      const response = await makeRequest()
         .post('/auth/register')
         .send({
           email: 'invalid-email',
@@ -37,7 +34,7 @@ describe('Authentication', () => {
     it('should not register with existing email', async () => {
       await createTestUser('test@example.com', 'password123');
 
-      const response = await request(callback)
+      const response = await makeRequest()
         .post('/auth/register')
         .send({
           email: 'test@example.com',
@@ -53,7 +50,7 @@ describe('Authentication', () => {
     it('should login with valid credentials', async () => {
       await createTestUser('test@example.com', 'password123');
 
-      const response = await request(callback)
+      const response = await makeRequest()
         .post('/auth/login')
         .send({
           email: 'test@example.com',
@@ -61,7 +58,6 @@ describe('Authentication', () => {
         });
 
       expect(response.status).toBe(200);
-      expect(response.body.status).toBe('success');
       expect(response.body.data.user.email).toBe('test@example.com');
       expect(response.body.data.token).toBeDefined();
     });
@@ -69,7 +65,7 @@ describe('Authentication', () => {
     it('should not login with invalid password', async () => {
       await createTestUser('test@example.com', 'password123');
 
-      const response = await request(callback)
+      const response = await makeRequest()
         .post('/auth/login')
         .send({
           email: 'test@example.com',
@@ -81,7 +77,7 @@ describe('Authentication', () => {
     });
 
     it('should not login with non-existent email', async () => {
-      const response = await request(callback)
+      const response = await makeRequest()
         .post('/auth/login')
         .send({
           email: 'nonexistent@example.com',

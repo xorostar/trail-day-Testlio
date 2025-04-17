@@ -1,19 +1,34 @@
+import { clearDatabase, createTestUser, makeRequest } from '../helpers';
 import request from 'supertest';
 import { callback } from '../../app';
 import Issue from '../../lib/models/issue';
 import IssueRevision from '../../lib/models/issue-revision';
 
 describe('Issue Revisions API', () => {
+  let authToken: string;
   let issueId: number;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
+    await clearDatabase();
+    // Create a test user and get auth token
+    const user = await createTestUser('test@example.com', 'password123');
+    const loginResponse = await makeRequest()
+      .post('/auth/login')
+      .send({
+        email: 'test@example.com',
+        password: 'password123'
+      });
+    authToken = loginResponse.body.data.token;
+
     // Create a test issue
-    const issue = await Issue.create({
-      title: 'Test Issue',
-      description: 'Test Description',
-      created_by: 'test@example.com'
-    });
-    issueId = issue.id;
+    const issueResponse = await makeRequest()
+      .post('/issues')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({
+        title: 'Test Issue',
+        description: 'Test Description'
+      });
+    issueId = issueResponse.body.data.id;
   });
 
   afterAll(async () => {
@@ -93,6 +108,17 @@ describe('Issue Revisions API', () => {
 
       expect(response.body.data).toHaveProperty('limit', 5);
       expect(response.body.data).toHaveProperty('offset', 0);
+    });
+  });
+
+  describe('GET /issue-revisions/:issueId', () => {
+    it('should get revisions for an issue', async () => {
+      const response = await makeRequest()
+        .get(`/issue-revisions/${issueId}`)
+        .set('Authorization', `Bearer ${authToken}`);
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body.data)).toBe(true);
     });
   });
 }); 

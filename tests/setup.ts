@@ -1,4 +1,5 @@
 import { getConnection } from '../lib/models/connection';
+import { setupAssociations } from '../lib/models/associations';
 
 // Set test environment variables
 process.env.NODE_ENV = 'test';
@@ -11,13 +12,11 @@ process.env.DB_PASSWORD = 'password';
 
 // Global setup
 beforeAll(async () => {
-  // Connect to test database
   await getConnection();
+  setupAssociations();
 });
 
 // Global teardown
 afterAll(async () => {
-  // Close database connection
-  const sequelize = getConnection();
-  await sequelize.close();
+  await getConnection().close();
 }); 
