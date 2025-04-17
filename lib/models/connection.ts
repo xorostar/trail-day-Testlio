@@ -1,6 +1,10 @@
 import { Sequelize } from 'sequelize';
 import config from '../../config';
 
+/**
+ * Connect to the database
+ * @returns {Promise<void>}
+ */
 const sequelize = new Sequelize(
     config.mysql.database!,
     config.mysql.user!,
@@ -19,6 +23,10 @@ const sequelize = new Sequelize(
     }
 );
 
+/**
+ * Connect to the database
+ * @returns {Promise<void>}
+ */
 export const connect = async (): Promise<void> => {
   try {
     await sequelize.authenticate();
@@ -29,6 +37,10 @@ export const connect = async (): Promise<void> => {
   }
 };
 
+/**
+ * Disconnect from the database
+ * @returns {Promise<void>}
+ */
 export const disconnect = async (): Promise<void> => {
   try {
     await sequelize.close();
@@ -39,6 +51,12 @@ export const disconnect = async (): Promise<void> => {
   }
 };
 
+/**
+ * Query the database
+ * @param {string} text - The query text
+ * @param {any[]} params - The query parameters
+ * @returns {Promise<any>}
+ */
 export const query = async (text: string, params?: any[]): Promise<any> => {
   const start = Date.now();
   try {
@@ -52,6 +70,10 @@ export const query = async (text: string, params?: any[]): Promise<any> => {
   }
 };
 
+/**
+ * Get the database connection
+ * @returns {Sequelize}
+ */
 export const getConnection = (): Sequelize => {
   return sequelize;
 };

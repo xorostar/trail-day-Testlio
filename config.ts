@@ -7,11 +7,13 @@ interface MySQLConfig {
 }
 
 interface Config {
+  appUrl: string | undefined;
   port: string | undefined;
   mysql: MySQLConfig;
 }
 
 const config: Config = {
+  appUrl: process.env.APP_URL,
   port: process.env.PORT,
   mysql: {
     host: process.env.DB_HOST,

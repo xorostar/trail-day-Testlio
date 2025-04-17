@@ -1,17 +1,8 @@
 import { Model, DataTypes } from 'sequelize';
 import { getConnection } from './connection';
+import { IIssue } from '../interfaces/db';
 
-interface IssueAttributes {
-  id?: number;
-  title: string;
-  description: string;
-  created_by?: string;
-  updated_by?: string;
-  created_at?: Date;
-  updated_at?: Date;
-}
-
-class Issue extends Model<IssueAttributes> implements IssueAttributes {
+class Issue extends Model<IIssue> implements IIssue {
   public id!: number;
   public title!: string;
   public description!: string;

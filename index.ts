@@ -2,16 +2,40 @@ import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import config from './config';
 import router from './lib/routes';
-import { connect } from './lib/models/connection';
+import { connect, disconnect } from './lib/models/connection';
+import logger from './lib/utils/logger';
 const app = new Koa();
 
+// Middleware
 app.use(bodyParser());
+
+// Routes
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-app.listen(config.port, async () => {
-    console.log(`Listening on http://localhost:${config.port}`); 
+// Error handling
+app.on('error', (err, ctx) => {
+    logger.error('Server error:', err);
+});
 
-    // Connect to the database
-    await connect();
-}); 
+// Start server
+const startServer = async () => {
+    try {
+      await connect();
+      app.listen(config.port, () => {
+        logger.info(`Listening on http://localhost:${config.port}`);
+      });
+    } catch (error) {
+      logger.error('Failed to start server:', error);
+      process.exit(1);
+    }
+  };
+
+startServer();
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+    logger.info('SIGTERM received. Shutting down gracefully...');
+    await disconnect();
+    process.exit(0);
+  });
