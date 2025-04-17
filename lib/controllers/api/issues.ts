@@ -27,10 +27,6 @@ export class IssueController {
 
     const result = await this.service.listIssues(limit, offset);
     
-    success(ctx, listIssuesResponseSchema.parse({
-      ...result,
-      limit,
-      offset
-    }));
+    success(ctx, listIssuesResponseSchema.parse(result));
   }
 } 

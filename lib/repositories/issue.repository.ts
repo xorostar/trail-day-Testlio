@@ -1,10 +1,10 @@
-import { CreateIssueDto, IssueResponseDto } from '../dto/issue.dto';
+import { CreateIssueDto, IssueResponseDto, ListIssuesResponseDto } from '../dto/issue.dto';
 import Issue from '../models/issue';
 import { IIssue } from '../interfaces/db';
 
 export interface IIssueRepository {
   create(issue: CreateIssueDto, createdBy: string): Promise<IssueResponseDto>;
-  list(limit: number, offset: number): Promise<{ issues: IssueResponseDto[]; total: number }>;
+  list(limit: number, offset: number): Promise<ListIssuesResponseDto>;
 }
 
 export class IssueRepository implements IIssueRepository {
@@ -18,7 +18,7 @@ export class IssueRepository implements IIssueRepository {
     return createdIssue.toJSON() as IssueResponseDto;
   }
 
-  async list(limit: number, offset: number): Promise<{ issues: IssueResponseDto[]; total: number }> {
+  async list(limit: number, offset: number): Promise<ListIssuesResponseDto> {
     const { count, rows } = await Issue.findAndCountAll({
       limit,
       offset,
@@ -27,7 +27,9 @@ export class IssueRepository implements IIssueRepository {
 
     return {
       issues: rows.map(issue => issue.toJSON() as IssueResponseDto),
-      total: count
+      total: count,
+      limit,
+      offset
     };
   }
 } 

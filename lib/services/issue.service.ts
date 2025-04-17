@@ -1,4 +1,4 @@
-import { CreateIssueDto, IssueResponseDto } from '../dto/issue.dto';
+import { CreateIssueDto, IssueResponseDto, ListIssuesResponseDto } from '../dto/issue.dto';
 import { createIssueSchema } from '../schemas/issue.schema';
 import { IIssueRepository, IssueRepository } from '../repositories/issue.repository';
 import { ValidationError } from '../utils/errors';
@@ -21,7 +21,7 @@ export class IssueService {
     return this.repository.create(issue, createdBy);
   }
 
-  async listIssues(limit: number = 10, offset: number = 0): Promise<{ issues: IssueResponseDto[]; total: number }> {
+  async listIssues(limit: number = 10, offset: number = 0): Promise<ListIssuesResponseDto> {
     // Validate pagination parameters
     if (limit < 1 || limit > 100) {
       throw new ValidationError('Limit must be between 1 and 100');
@@ -30,6 +30,11 @@ export class IssueService {
       throw new ValidationError('Offset must be greater than or equal to 0');
     }
 
-    return this.repository.list(limit, offset);
+    const result = await this.repository.list(limit, offset);
+    return {
+      ...result,
+      limit,
+      offset
+    };
   }
 } 
