@@ -1,5 +1,5 @@
 import { Model, DataTypes } from 'sequelize';
-import sequelize from './connection';
+import { getConnection } from './connection';
 
 interface IssueAttributes {
   id?: number;
@@ -41,7 +41,7 @@ Issue.init(
     }
   },
   {
-    sequelize,
+    sequelize: getConnection(),
     modelName: 'issue',
     timestamps: true,
     updatedAt: 'updated_at',
