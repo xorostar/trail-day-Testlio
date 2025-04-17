@@ -4,9 +4,12 @@ import config from './config';
 import router from './lib/routes';
 import { connect, disconnect } from './lib/models/connection';
 import logger from './lib/utils/logger';
+import { errorHandler } from './lib/middleware/error-handler';
+
 const app = new Koa();
 
 // Middleware
+app.use(errorHandler);
 app.use(bodyParser());
 
 // Routes

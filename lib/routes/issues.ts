@@ -5,5 +5,6 @@ const router = new Router();
 const controller = new IssueController();
 
 router.post('/', controller.create.bind(controller));
+router.get('/', controller.list.bind(controller));
 
 export default router;

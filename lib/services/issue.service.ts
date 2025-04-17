@@ -20,4 +20,16 @@ export class IssueService {
     // Create issue
     return this.repository.create(issue, createdBy);
   }
+
+  async listIssues(limit: number = 10, offset: number = 0): Promise<{ issues: IssueResponseDto[]; total: number }> {
+    // Validate pagination parameters
+    if (limit < 1 || limit > 100) {
+      throw new ValidationError('Limit must be between 1 and 100');
+    }
+    if (offset < 0) {
+      throw new ValidationError('Offset must be greater than or equal to 0');
+    }
+
+    return this.repository.list(limit, offset);
+  }
 } 

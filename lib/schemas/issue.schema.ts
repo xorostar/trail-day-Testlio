@@ -18,4 +18,11 @@ export const issueResponseSchema = z.object({
   updated_by: z.string(),
   created_at: z.date(),
   updated_at: z.date()
-}) satisfies z.ZodType<IIssue>; 
+}) satisfies z.ZodType<IIssue>;
+
+export const listIssuesResponseSchema = z.object({
+  issues: z.array(issueResponseSchema),
+  total: z.number(),
+  limit: z.number(),
+  offset: z.number()
+}); 

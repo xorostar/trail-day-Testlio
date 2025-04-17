@@ -11,4 +11,11 @@ export interface IssueResponseDto extends IIssue {
   updated_by: string;
   created_at: Date;
   updated_at: Date;
+}
+
+export interface ListIssuesResponseDto {
+  issues: IssueResponseDto[];
+  total: number;
+  limit: number;
+  offset: number;
 } 
