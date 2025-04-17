@@ -29,4 +29,14 @@ export class IssueController {
     
     success(ctx, listIssuesResponseSchema.parse(result));
   }
+
+  async update(ctx: Context): Promise<void> {
+    const id = parseInt(ctx.params.id);
+    const issueData = ctx.request.body as Partial<CreateIssueDto>;
+    const updatedBy = ctx.state.user?.email || 'unknown';
+
+    const issue = await this.service.updateIssue(id, issueData, updatedBy);
+    
+    success(ctx, issueResponseSchema.parse(issue));
+  }
 } 

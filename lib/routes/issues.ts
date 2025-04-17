@@ -6,5 +6,6 @@ const controller = new IssueController();
 
 router.post('/', controller.create.bind(controller));
 router.get('/', controller.list.bind(controller));
+router.patch('/:id', controller.update.bind(controller));
 
 export default router;

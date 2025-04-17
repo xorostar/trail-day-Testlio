@@ -37,4 +37,16 @@ export class IssueService {
       offset
     };
   }
+
+  async updateIssue(id: number, issue: Partial<CreateIssueDto>, updatedBy: string): Promise<IssueResponseDto> {
+    // Validate input if any fields are provided
+    if (issue.title || issue.description) {
+      const validationResult = createIssueSchema.partial().safeParse(issue);
+      if (!validationResult.success) {
+        throw new ValidationError('Invalid issue data', validationResult.error.errors);
+      }
+    }
+
+    return this.repository.update(id, issue, updatedBy);
+  }
 } 
