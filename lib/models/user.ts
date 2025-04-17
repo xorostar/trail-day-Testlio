@@ -1,6 +1,7 @@
 import { Model, DataTypes } from 'sequelize';
 import { getConnection } from './connection';
 import bcrypt from 'bcrypt';
+import Role from './role';
 
 class User extends Model {
   public id!: number;
@@ -8,10 +9,27 @@ class User extends Model {
   public password!: string;
   public readonly created_at!: Date;
   public readonly updated_at!: Date;
+  public roles?: Role[];
 
   public async comparePassword(candidatePassword: string): Promise<boolean> {
     return bcrypt.compare(candidatePassword, this.password);
   }
+
+  public async hasRole(roleName: string): Promise<boolean> {
+    if (!this.roles) {
+      await this.reload({ include: [Role] });
+    }
+    return this.roles?.some(role => role.name === roleName) || false;
+  }
+
+  public async isAdmin(): Promise<boolean> {
+    return this.hasRole('admin');
+  }
+
+  // Define association methods
+  public addRole!: (role: Role) => Promise<void>;
+  public removeRole!: (role: Role) => Promise<void>;
+  public setRoles!: (roles: Role[]) => Promise<void>;
 }
 
 User.init(
@@ -58,5 +76,9 @@ User.init(
     }
   }
 );
+
+// Define many-to-many relationship with Role
+User.belongsToMany(Role, { through: 'user_roles', foreignKey: 'user_id' });
+Role.belongsToMany(User, { through: 'user_roles', foreignKey: 'role_id' });
 
 export default User; 

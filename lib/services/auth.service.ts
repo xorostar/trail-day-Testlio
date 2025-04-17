@@ -1,6 +1,7 @@
 import { LoginDto, RegisterDto, AuthResponseDto } from '../dto/auth.dto';
 import { loginSchema, registerSchema } from '../schemas/auth.schema';
 import User from '../models/user';
+import Role from '../models/role';
 import { ValidationError } from '../utils/errors';
 import jwt from 'jsonwebtoken';
 
@@ -14,7 +15,10 @@ export class AuthService {
       throw new ValidationError('Invalid login data', validationResult.error.errors);
     }
 
-    const user = await User.findOne({ where: { email: loginDto.email } });
+    const user = await User.findOne({ 
+      where: { email: loginDto.email },
+      include: [Role]
+    });
     if (!user) {
       throw new ValidationError('Invalid email or password');
     }
@@ -49,8 +53,14 @@ export class AuthService {
       email: registerDto.email,
       password: registerDto.password
     });
-    const token = this.generateToken(user);
 
+    // Assign default user role
+    const userRole = await Role.findOne({ where: { name: 'user' } });
+    if (userRole) {
+      await user.addRole(userRole);
+    }
+
+    const token = this.generateToken(user);
     return {
       token,
       user: {
