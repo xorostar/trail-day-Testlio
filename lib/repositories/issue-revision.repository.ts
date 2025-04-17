@@ -5,6 +5,7 @@ import { NotFoundError } from '../utils/errors';
 export interface IIssueRevisionRepository {
   create(revision: Omit<IssueRevisionDto, 'id' | 'created_at'>): Promise<IssueRevisionDto>;
   listByIssueId(issueId: number, limit: number, offset: number): Promise<ListIssueRevisionsResponseDto>;
+  findById(id: number): Promise<IssueRevisionDto | null>;
 }
 
 export class IssueRevisionRepository implements IIssueRevisionRepository {
@@ -27,5 +28,10 @@ export class IssueRevisionRepository implements IIssueRevisionRepository {
       limit,
       offset
     };
+  }
+
+  async findById(id: number): Promise<IssueRevisionDto | null> {
+    const revision = await IssueRevision.findByPk(id);
+    return revision ? revision.toJSON() as IssueRevisionDto : null;
   }
 } 

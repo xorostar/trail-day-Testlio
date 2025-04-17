@@ -15,4 +15,19 @@ export const listIssueRevisionsResponseSchema = z.object({
   total: z.number(),
   limit: z.number(),
   offset: z.number()
+});
+
+export const compareRevisionsResponseSchema = z.object({
+  before: z.object({
+    title: z.string(),
+    description: z.string(),
+    created_at: z.date()
+  }),
+  after: z.object({
+    title: z.string(),
+    description: z.string(),
+    created_at: z.date()
+  }),
+  changes: z.record(z.any()),
+  revisions: z.array(issueRevisionSchema)
 }); 

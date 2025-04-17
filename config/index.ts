@@ -24,7 +24,7 @@ interface DatabaseConfig {
   };
 }
 
-interface Config {
+export interface Config {
   server: {
     port: number;
     env: string;

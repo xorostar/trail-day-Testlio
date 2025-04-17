@@ -1,7 +1,6 @@
 import { Model, DataTypes } from 'sequelize';
 import { getConnection } from './connection';
-import bcrypt from 'bcrypt';
-import Role from './role';
+import bcrypt from 'bcryptjs';
 
 class User extends Model {
   public id!: number;
@@ -9,7 +8,7 @@ class User extends Model {
   public password!: string;
   public readonly created_at!: Date;
   public readonly updated_at!: Date;
-  public roles?: Role[];
+  public roles?: any[]; // We'll type this properly after associations are set up
 
   public async comparePassword(candidatePassword: string): Promise<boolean> {
     return bcrypt.compare(candidatePassword, this.password);
@@ -17,7 +16,7 @@ class User extends Model {
 
   public async hasRole(roleName: string): Promise<boolean> {
     if (!this.roles) {
-      await this.reload({ include: [Role] });
+      await this.reload({ include: ['roles'] });
     }
     return this.roles?.some(role => role.name === roleName) || false;
   }
@@ -27,9 +26,27 @@ class User extends Model {
   }
 
   // Define association methods
-  public addRole!: (role: Role) => Promise<void>;
-  public removeRole!: (role: Role) => Promise<void>;
-  public setRoles!: (roles: Role[]) => Promise<void>;
+  public addRole!: (role: any) => Promise<void>;
+  public removeRole!: (role: any) => Promise<void>;
+  public setRoles!: (roles: any[]) => Promise<void>;
+
+  static async createUser(user: Partial<User>): Promise<User> {
+    if (!user.password) {
+      throw new Error('Password is required to create a user');
+    }
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(user.password, salt);
+    return this.create(user);
+  }
+
+  static async updateUser(id: number, user: Partial<User>): Promise<User | null> {
+    if (user.password) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(user.password, salt);
+    }
+    const [affectedCount] = await this.update(user, { where: { id } });
+    return affectedCount > 0 ? this.findByPk(id) : null;
+  }
 }
 
 User.init(
@@ -59,26 +76,8 @@ User.init(
     timestamps: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at',
-    tableName: 'users',
-    hooks: {
-      beforeCreate: async (user: User) => {
-        if (user.password) {
-          const salt = await bcrypt.genSalt(10);
-          user.password = await bcrypt.hash(user.password, salt);
-        }
-      },
-      beforeUpdate: async (user: User) => {
-        if (user.changed('password')) {
-          const salt = await bcrypt.genSalt(10);
-          user.password = await bcrypt.hash(user.password, salt);
-        }
-      }
-    }
+    tableName: 'users'
   }
 );
-
-// Define many-to-many relationship with Role
-User.belongsToMany(Role, { through: 'user_roles', foreignKey: 'user_id' });
-Role.belongsToMany(User, { through: 'user_roles', foreignKey: 'role_id' });
 
 export default User; 

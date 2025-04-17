@@ -5,6 +5,7 @@ import router from './lib/routes';
 import { connect, disconnect } from './lib/models/connection';
 import logger from './lib/utils/logger';
 import { errorHandler } from './lib/middleware/error-handler';
+import { initializeDatabase } from './lib/db';
 
 const app = new Koa();
 
@@ -24,7 +25,11 @@ app.on('error', (err, ctx) => {
 // Start server
 const startServer = async () => {
     try {
+      // Connect to database and initialize models
       await connect();
+      await initializeDatabase();
+      
+      // Start the server
       app.listen(config.port, () => {
         logger.info(`Listening on http://localhost:${config.port}`);
       });
@@ -32,7 +37,7 @@ const startServer = async () => {
       logger.error('Failed to start server:', error);
       process.exit(1);
     }
-  };
+};
 
 startServer();
 
@@ -41,4 +46,4 @@ process.on('SIGTERM', async () => {
     logger.info('SIGTERM received. Shutting down gracefully...');
     await disconnect();
     process.exit(0);
-  });
+});

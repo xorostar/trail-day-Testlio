@@ -1,6 +1,5 @@
 import { Model, DataTypes } from 'sequelize';
 import { getConnection } from './connection';
-import User from './user';
 
 class Role extends Model {
   public id!: number;
@@ -32,9 +31,5 @@ Role.init(
     tableName: 'roles'
   }
 );
-
-// Define many-to-many relationship with User
-Role.belongsToMany(User, { through: 'user_roles', foreignKey: 'role_id' });
-User.belongsToMany(Role, { through: 'user_roles', foreignKey: 'user_id' });
 
 export default Role; 

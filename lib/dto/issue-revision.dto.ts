@@ -13,4 +13,19 @@ export interface ListIssueRevisionsResponseDto {
   total: number;
   limit: number;
   offset: number;
+}
+
+export interface CompareRevisionsResponseDto {
+  before: {
+    title: string;
+    description: string;
+    created_at: Date;
+  };
+  after: {
+    title: string;
+    description: string;
+    created_at: Date;
+  };
+  changes: Record<string, any>;
+  revisions: IssueRevisionDto[];
 } 
