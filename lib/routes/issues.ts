@@ -1,8 +1,9 @@
 import Router from 'koa-router';
-import issues from '../controllers/api/issues';
+import { IssueController } from '../controllers/api/issues';
 
-const issueRouter = new Router();
+const router = new Router();
+const controller = new IssueController();
 
-issueRouter.get('/:id', issues.get);
+router.post('/', controller.create.bind(controller));
 
-export default issueRouter;
+export default router;
