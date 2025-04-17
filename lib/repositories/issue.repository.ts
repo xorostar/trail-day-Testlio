@@ -7,6 +7,7 @@ export interface IIssueRepository {
   create(issue: CreateIssueDto, createdBy: string): Promise<IssueResponseDto>;
   list(limit: number, offset: number): Promise<ListIssuesResponseDto>;
   update(id: number, issue: Partial<CreateIssueDto>, updatedBy: string): Promise<IssueResponseDto>;
+  findById(id: number): Promise<IssueResponseDto | null>;
 }
 
 export class IssueRepository implements IIssueRepository {
@@ -49,5 +50,10 @@ export class IssueRepository implements IIssueRepository {
     }
 
     return affectedRows[0].toJSON() as IssueResponseDto;
+  }
+
+  async findById(id: number): Promise<IssueResponseDto | null> {
+    const issue = await Issue.findByPk(id);
+    return issue ? issue.toJSON() as IssueResponseDto : null;
   }
 } 
